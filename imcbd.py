@@ -128,9 +128,9 @@ def salvar():
     elif imc >= 40:
       estado = 'Obesidade Mórbida'
 
-    querSalvar = messagebox.askyesno("Sair", "Deseja salvar os nados no Cadastro?")
+    querSalvar = messagebox.askyesno("Salvar", "Deseja Salvar os Dados no Cadastro?")
     if querSalvar == True:
-      vquery = f"INSERT INTO clientes (nome, endereco, peso, altura, imc, status) VALUES('{nom}','{end}',{pes},{altmetros},{imc:.2f},'{estado}')"
+      vquery = f"INSERT INTO clientes (nome, endereco, peso, altura, imc, status) VALUES('{nom}','{end}',{pes:5.2f},{altmetros:3.2f},{imc:4.2f},'{estado}')"
       banco.dml(vquery)
       # varnome.delete(0, END)
       # varendereco.delete(0, END)
@@ -232,16 +232,16 @@ quadroGrid.pack(fill='both', expand=TRUE, padx=10, pady=10)
 tv=ttk.Treeview(quadroGrid, height=20, columns=('id', 'nome', 'endereco', 'peso', 'altura', 'imc', 'status'), show='headings')
 tv.column('id', minwidth=0, width=40)
 tv.column('nome', minwidth=0, width=220)
-tv.column('endereco', minwidth=0, width=320)
-tv.column('peso', minwidth=0, width=50)
-tv.column('altura', minwidth=0, width=50)
+tv.column('endereco', minwidth=0, width=300)
+tv.column('peso', minwidth=0, width=58)
+tv.column('altura', minwidth=0, width=69)
 tv.column('imc', minwidth=0, width=50)
-tv.column('status', minwidth=0, width=140)
+tv.column('status', minwidth=0, width=133)
 tv.heading('id', text='ID')
 tv.heading('nome', text='NOME')
 tv.heading('endereco', text='ENDEREÇO')
-tv.heading('peso', text='PESO')
-tv.heading('altura', text='ALTURA')
+tv.heading('peso', text='PESO(Kg)')
+tv.heading('altura', text='ALTURA(M)')
 tv.heading('imc', text='IMC')
 tv.heading('status', text='STATUS')
 tv.pack()
