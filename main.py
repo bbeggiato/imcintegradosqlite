@@ -13,7 +13,7 @@ def pesquisar():
 
 def popular():
   tv.delete(*tv.get_children())  # Deleta todos os registros do Tree View
-  vquery = "SELECT * FROM clientes order by idcliente desc"
+  vquery = "SELECT * FROM clientes order by nome asc"
   linhas = banco.dql(vquery)
   for i in linhas:
     tv.insert("", "end", values=i)
@@ -45,7 +45,7 @@ def sair():
 
 # Validação para não permitir string nos campos peso e altura
 def valida(entrada):
-  if entrada.replace('.', '',1).isdigit():
+  if entrada.replace('.', '', 1).isdigit():
     return True
   elif entrada == "":
     return True
@@ -57,80 +57,72 @@ def valida(entrada):
 def analisaDados():
   # Recebe os valores com o get() e os atribui a variável
   if vnome.get() != "" and vnome.get() != "" and vendereco.get() != "" and valtura.get() != "" and vpeso.get() != "":
-    nom = vnome.get()
-    end = vendereco.get()
     alt = float(valtura.get())
     pes = float(vpeso.get())
 
-    # Converte altura para metro
-    altmetros = alt / 100
-
-
-    # Cálculo do IMC jogado a uma variável
-    imc = pes / (altmetros * altmetros)
-
-    # Calcula como a pessoa se enquadra baseado no IMC
-    estado = ''
-    if imc < 17:
-      estado = 'Muito abaixo do Peso'
-    elif imc >= 17 and imc < 18.5:
-      estado = 'Abaixo do Peso'
-    elif imc >= 18.5 and imc <= 24.99:
-      estado = 'Peso Normal'
-    elif imc >= 25 and imc <= 29.99:
-      estado = 'Acima do Peso'
-    elif imc >= 30 and imc <= 34.99:
-      estado = 'Obesidade I'
-    elif imc >= 35 and imc <= 39.99:
-      estado = 'Obesidade Severa'
-    elif imc >= 40:
-        estado = 'Obesidade Mórbida'
+    res = calculaImc(alt, pes)
+    vimc = res[0]
+    vestado = res[1]
 
     # Atribui a resposta a res
-    res = f' O IMC  é: {imc:.2f}\n\n {estado}'
+    resultado = f' O IMC  é: {vimc:.2f}\n\n {vestado}'
 
     # Escreve o conteúdo de res
-    lb["text"] = res
+    lb["text"] = resultado
 
-    #dados = salvar(nom, end, pes, altmetros, imc,  estado)
+    return res
 
   else:
-    messagebox.showwarning(title="Aviso",message="Favor Preencher Todos os Campos!")
+    messagebox.showwarning(title="Aviso", message="Favor Preencher Todos os Campos!")
+
+
+# Calcula como a pessoa se enquadra baseado no IMC
+def calculaImc(alt, pes):
+
+  # Converte altura para metro
+  altmetros = alt / 100
+
+  # Cálculo do IMC jogado a uma variável
+  imc = pes / (altmetros * altmetros)
+
+  estado = ''
+  if imc < 17:
+    estado = 'Muito abaixo do Peso'
+  elif imc >= 17 and imc < 18.5:
+    estado = 'Abaixo do Peso'
+  elif imc >= 18.5 and imc <= 24.99:
+    estado = 'Peso Normal'
+  elif imc >= 25 and imc <= 29.99:
+    estado = 'Acima do Peso'
+  elif imc >= 30 and imc <= 34.99:
+    estado = 'Obesidade I'
+  elif imc >= 35 and imc <= 39.99:
+    estado = 'Obesidade Severa'
+  elif imc >= 40:
+    estado = 'Obesidade Mórbida'
+
+  lista = []
+  lista.append(imc)
+  lista.append(estado)
+  lista.append(altmetros)
+  return lista
+
+
 # Salva os dados no BD
 def salvar():
-
   if lb["text"] != '' and vnome.get() != "" and vnome.get() != "" and vendereco.get() != "" and valtura.get() != "" and vpeso.get() != "":
     nom = vnome.get()
     end = vendereco.get()
-    alt = float(valtura.get())
     pes = float(vpeso.get())
 
-    # Converte altura para metro
-    altmetros = alt / 100
-
-    # Cálculo do IMC jogado a uma variável
-    imc = pes / (altmetros * altmetros)
-
-    # Calcula como a pessoa se enquadra baseado no IMC
-    estado = ''
-    if imc < 17:
-      estado = 'Muito abaixo do Peso'
-    elif imc >= 17 and imc < 18.5:
-      estado = 'Abaixo do Peso'
-    elif imc >= 18.5 and imc <= 24.99:
-      estado = 'Peso Normal'
-    elif imc >= 25 and imc <= 29.99:
-      estado = 'Acima do Peso'
-    elif imc >= 30 and imc <= 34.99:
-      estado = 'Obesidade I'
-    elif imc >= 35 and imc <= 39.99:
-      estado = 'Obesidade Severa'
-    elif imc >= 40:
-      estado = 'Obesidade Mórbida'
+    result = analisaDados()
+    imc = result[0]
+    estado = result[1]
+    altmetros = result[2]
 
     querSalvar = messagebox.askyesno("Salvar", "Deseja Salvar os Dados no Cadastro?")
     if querSalvar == True:
-      vquery = f"INSERT INTO clientes (nome, endereco, peso, altura, imc, status) VALUES('{nom}','{end}',{pes:5.2f},{altmetros:3.2f},{imc:4.2f},'{estado}')"
+      vquery = f"INSERT INTO clientes (nome, endereco, peso, altura, imc, status) VALUES('{nom}','{end}',{pes:.1f},{altmetros:.2f},{imc:4.2f},'{estado}')"
       banco.dml(vquery)
       # varnome.delete(0, END)
       # varendereco.delete(0, END)
@@ -145,7 +137,7 @@ def salvar():
 
 # Executa comando da funão ao clicar no botão Limpar
 def reset():
-  resposta = messagebox.askyesno("Resetar","Deseja Limpar todos os Dados?")
+  resposta = messagebox.askyesno("Resetar", "Deseja Limpar todos os Dados?")
   if resposta == True:
     # Limpa o campo Resultado
     res = ''
@@ -163,7 +155,7 @@ main.title("Cálculo do IMC - Índice de Massa Corporal")
 main.geometry("900x600")
 
 nb=ttk.Notebook(main)
-nb.place(x=0,y=0,width=900,height=600)
+nb.place(x=0, y=0, width=900, height=600)
 
 tb1=Frame(nb, background="lightblue")
 tb2=Frame(nb, background="lightblue")
@@ -171,10 +163,10 @@ tb2=Frame(nb, background="lightblue")
 nb.add(tb1,text="Cálculo IMC")
 nb.add(tb2, text="Cadastro")
 
-vnum_cstexto=StringVar()
+vnum_cstexto = StringVar()
 
 frame1=Frame(tb1, borderwidth=3, background="#cecece")
-frame1.place(x=400,y=257,width=330,height=200)
+frame1.place(x=400, y=257, width=330, height=200)
 
 # Campo Nome
 nome = Label(tb1, text="Nome do Paciente: ", font="14", bg='lightblue', anchor=W)
@@ -262,4 +254,5 @@ btn_todos.pack(side="left", padx=5, ipady=1)
 btn_deletar=Button(quadroPesquisar, text="  Deletar  ", command=deletar)
 btn_deletar.pack(side="left", padx=5, ipady=1)
 main.mainloop()
+
 
